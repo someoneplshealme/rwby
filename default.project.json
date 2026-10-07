@@ -1,0 +1,53 @@
+{
+	"name": "grimmfall",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"Shared": {
+				"$path": "src/shared"
+			}
+		},
+		"ServerScriptService": {
+			"Server": {
+				"$path": "src/server"
+			}
+		},
+		"StarterPlayer": {
+			"$properties": {
+				"CameraMaxZoomDistance": 36,
+				"CameraMinZoomDistance": 4,
+				"EnableMouseLockOption": true,
+				"AutoJumpEnabled": false,
+				"CharacterWalkSpeed": 14,
+				"CharacterUseJumpPower": true,
+				"CharacterJumpPower": 52
+			},
+			"StarterPlayerScripts": {
+				"Client": {
+					"$path": "src/client"
+				}
+			}
+		},
+		"Players": {
+			"$properties": {
+				"CharacterAutoLoads": false
+			}
+		},
+		"Workspace": {
+			"$properties": {
+				"StreamingEnabled": false
+			}
+		},
+		"Lighting": {
+			"$properties": {
+				"Technology": "Future",
+				"GlobalShadows": true
+			}
+		},
+		"SoundService": {
+			"$properties": {
+				"RespectFilteringEnabled": true
+			}
+		}
+	}
+}

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    name: Format, lint, type-check, test and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain (rokit.toml)
+        uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          cache: true
+
+      - name: Format (StyLua)
+        run: stylua --check src tests tools
+
+      - name: Lint (Selene)
+        run: selene src tests tools
+
+      - name: Unit tests (Lune)
+        run: lune run tests/run.luau
+
+      - name: Type-check (luau-lsp, strict, Roblox API definitions)
+        run: |
+          rojo sourcemap default.project.json -o sourcemap.json
+          curl -fsSL -o globalTypes.d.luau \
+            https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/1.70.1/scripts/globalTypes.None.d.luau
+          luau-lsp analyze --definitions=globalTypes.d.luau --sourcemap=sourcemap.json \
+            --no-strict-dm-types --flag:LuauSolverV2=false src/ 2>&1 | tee analyze.log
+          if grep -E "TypeError|SyntaxError|LocalUnused" analyze.log; then
+            echo "::error::luau-lsp reported diagnostics"
+            exit 1
+          fi
+
+      - name: Build place file
+        run: rojo build default.project.json -o Grimmfall.rbxl
+
+      - name: Upload place file
+        uses: actions/upload-artifact@v4
+        with:
+          name: Grimmfall
+          path: Grimmfall.rbxl
