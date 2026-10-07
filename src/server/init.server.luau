@@ -33,4 +33,4 @@ for _, service in order do
 	end
 end
 
-print("[RWBY: Shattered Moon] server ready")
+print("[Grimmfall] server ready")

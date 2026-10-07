@@ -1,6 +1,6 @@
 # Game design
 
-This doc describes how *RWBY: Shattered Moon* plays, and which file controls each part. All numbers
+This doc describes how *Grimmfall* plays, and which file controls each part. All numbers
 live in `src/shared/Config`, mostly in `Combat.luau`. Values below are current defaults; times are
 in seconds.
 

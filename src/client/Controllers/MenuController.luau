@@ -255,7 +255,7 @@ local function showCreation()
 		TextSize = 40,
 		TextColor3 = Colors.Text,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "RWBY: SHATTERED MOON",
+		Text = "GRIMMFALL",
 		Parent = screen,
 	})
 	New("TextLabel", {

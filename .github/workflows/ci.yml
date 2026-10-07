@@ -38,10 +38,10 @@ jobs:
           fi
 
       - name: Build place file
-        run: rojo build default.project.json -o RWBY-ShatteredMoon.rbxl
+        run: rojo build default.project.json -o Grimmfall.rbxl
 
       - name: Upload place file
         uses: actions/upload-artifact@v4
         with:
-          name: RWBY-ShatteredMoon
-          path: RWBY-ShatteredMoon.rbxl
+          name: Grimmfall
+          path: Grimmfall.rbxl

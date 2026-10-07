@@ -1,8 +1,8 @@
-# RWBY: Shattered Moon
+# Grimmfall
 
-An action RPG for Roblox in the style of Deepwoken and Type Soul, set in Remnant from RWBY. You make a
-Huntsman, roll a Semblance, pick a mecha-shift weapon and fight Grimm (or other players) with
-posture, parries and Aura.
+An action RPG for Roblox in the style of Deepwoken and Type Soul, set in Remnant from RWBY, under its
+shattered moon. You make a Huntsman, roll a Semblance, pick a mecha-shift weapon and fight Grimm (or
+other players) with posture, parries and Aura.
 
 This is an unofficial fan project; see [Legal](#legal).
 
@@ -57,15 +57,15 @@ You need Roblox Studio and [Rokit](https://github.com/rojo-rbx/rokit), the toolc
 
 ```sh
 rokit install
-rojo build default.project.json -o RWBY-ShatteredMoon.rbxl
+rojo build default.project.json -o Grimmfall.rbxl
 ```
 
-1. Open `RWBY-ShatteredMoon.rbxl` in Roblox Studio and press **Play**. The world is generated when the server starts, and the character creator opens on your first join.
+1. Open `Grimmfall.rbxl` in Roblox Studio and press **Play**. The world is generated when the server starts, and the character creator opens on your first join.
 2. For live editing, run `rojo serve` and connect with the [Rojo Studio plugin](https://rojo.space/docs/v7/getting-started/installation/). Code changes then sync into Studio as you save.
 3. To save progress in Studio, publish the place, then turn on *Game Settings → Security → Enable Studio Access to API Services*. Without it the game warns once and uses temporary in-memory profiles.
 4. Characters are always R6 (the server builds them), so the place's avatar settings don't matter.
 
-Every push also builds the place file in CI, as the downloadable `RWBY-ShatteredMoon` artifact on the workflow run.
+Every push also builds the place file in CI, as the downloadable `Grimmfall` artifact on the workflow run.
 
 ## Controls
 
@@ -167,4 +167,4 @@ Gameplay feel (timings, speeds, damage) has not been tuned by playing, so expect
 
 RWBY was created by Monty Oum and produced by Rooster Teeth. RWBY, its names and its world belong to their rights holders. This project isn't affiliated with or endorsed by them.
 
-It uses no canon characters and no official assets; the weapons are original designs inspired by the show. Even so, the RWBY name and setting can attract takedowns, especially if the game is monetized. Rebrand the game, or get permission, before publishing it widely.
+The title doesn't use the RWBY name, and the game has no canon characters or official assets; the weapons are original designs inspired by the show. The setting is still RWBY's, though: places like Beacon and Vale, and terms like Semblance, Dust and Aura. A fan game like this can still be taken down, especially if it's monetized. Keep it free, or get permission before selling anything in it.
