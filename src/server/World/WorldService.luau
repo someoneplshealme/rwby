@@ -76,8 +76,14 @@ function WorldService.init()
 end
 
 function WorldService.start()
+	-- Advance the clock twice a second; that is smooth enough and keeps replication light.
+	local pending = 0
 	RunService.Heartbeat:Connect(function(dt: number)
-		Lighting.ClockTime = (Lighting.ClockTime + dt * 24 / DAY_LENGTH) % 24
+		pending += dt
+		if pending >= 0.5 then
+			Lighting.ClockTime = (Lighting.ClockTime + pending * 24 / DAY_LENGTH) % 24
+			pending = 0
+		end
 	end)
 end
 

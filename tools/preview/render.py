@@ -192,12 +192,68 @@ def render_cell(parts, view, scale, center, ground_y):
     return img
 
 
+VIEW_ALIASES = {"front": "front 3/4", "side": "side", "top": "top"}
+
+
+def pick_views(data):
+    names = data.get("views")
+    if not names:
+        return VIEWS
+    wanted = [VIEW_ALIASES.get(n, n) for n in names]
+    return [v for v in VIEWS if v[0] in wanted]
+
+
+def render_sheet(data, out):
+    """Rows of clips: each clip gets one strip per view, columns are keyframes."""
+    rows = data["rows"]
+    views = pick_views(data)
+    all_pts = []
+    for row in rows:
+        for frame in row["frames"]:
+            for part in frame["parts"]:
+                world, _ = part_polys(part)
+                all_pts.append(world)
+    pts = np.concatenate(all_pts)
+    center = (pts.min(axis=0) + pts.max(axis=0)) / 2
+    extent = float(np.percentile(np.linalg.norm(pts - center, axis=1), 99))
+    scale = min(CELL_W, CELL_H - LABEL_H) * 0.47 / max(extent, 1.0)
+    ground_y = data.get("groundY", -3.0)
+    cols = max(len(row["frames"]) for row in rows)
+    strips = len(rows) * len(views)
+    title_h = 26
+    sheet = Image.new("RGB", (cols * CELL_W, strips * CELL_H + title_h), (20, 20, 26))
+    draw = ImageDraw.Draw(sheet)
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", 12)
+        title_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 15)
+    except OSError:
+        font = title_font = ImageFont.load_default()
+    draw.text((8, 5), data.get("title", ""), fill=(235, 235, 240), font=title_font)
+    strip = 0
+    for row in rows:
+        for view in views:
+            for c, frame in enumerate(row["frames"]):
+                cell = render_cell(frame["parts"], view, scale, center, ground_y)
+                x, y = c * CELL_W, title_h + strip * CELL_H
+                sheet.paste(cell.convert("RGB"), (x, y + LABEL_H))
+                prefix = row["title"] + " " if c == 0 else ""
+                draw.text((x + 4, y + 2), f"{prefix}{frame.get('label', '')}", fill=(205, 205, 215), font=font)
+                draw.line([(x, y), (x, y + CELL_H)], fill=(10, 10, 14))
+            draw.line([(0, title_h + strip * CELL_H), (cols * CELL_W, title_h + strip * CELL_H)], fill=(70, 70, 90))
+            strip += 1
+    sheet.save(out)
+    print(f"wrote {out} ({len(rows)} clips x {len(views)} views)")
+
+
 def main():
     src, out = sys.argv[1], sys.argv[2]
     with open(src) as f:
         data = json.load(f)
+    if data.get("rows"):
+        render_sheet(data, out)
+        return
     frames = data["frames"]
-    views = VIEWS if data.get("views") is None else [v for v in VIEWS if v[0] in data["views"]]
+    views = pick_views(data)
 
     # One shared scale/centre for every frame so motion between frames reads correctly.
     all_pts = []

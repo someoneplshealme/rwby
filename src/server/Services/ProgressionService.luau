@@ -49,7 +49,11 @@ function ProgressionService.addXP(player: Player, amount: number)
 		if combatant and profile then
 			combatant:heal(combatant.stats.maxHealth, combatant.stats.maxAura)
 			CombatService.broadcast("Effect", { name = "LevelUp", rig = combatant.model, level = profile.Level })
-			ProgressionService.notify(player, `Level {profile.Level}! +{Progression.PointsPerLevel * leveled} attribute points`, "Level")
+			ProgressionService.notify(
+				player,
+				`Level {profile.Level}! +{Progression.PointsPerLevel * leveled} attribute points`,
+				"Level"
+			)
 			if profile.Level % 5 == 0 then
 				ProgressionService.notify(player, "You earned a Semblance Spin.", "Level")
 			end

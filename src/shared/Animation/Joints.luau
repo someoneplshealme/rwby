@@ -141,8 +141,18 @@ function Joints.H(pitch: number?, yaw: number?, roll: number?): CFrame
 	return Angles(0, rad(-(yaw or 0)), 0) * Angles(rad(-(pitch or 0)), 0, 0) * Angles(0, 0, rad(-(roll or 0)))
 end
 
-local function limb(pitch: number?, out: number?, twist: number?, side: number, x: number?, y: number?, z: number?): CFrame
-	local r = Angles(rad(pitch or 0), 0, 0) * Angles(0, 0, rad((out or 0) * side)) * Angles(0, rad((twist or 0) * side), 0)
+local function limb(
+	pitch: number?,
+	out: number?,
+	twist: number?,
+	side: number,
+	x: number?,
+	y: number?,
+	z: number?
+): CFrame
+	local r = Angles(rad(pitch or 0), 0, 0)
+		* Angles(0, 0, rad((out or 0) * side))
+		* Angles(0, rad((twist or 0) * side), 0)
 	if x or y or z then
 		return CFrame.new((x or 0) * side, y or 0, z or 0) * r
 	end
@@ -174,7 +184,9 @@ local function grip(
 	y: number?,
 	z: number?
 ): CFrame
-	local r = Angles(0, 0, rad((roll or 0) * side)) * Angles(rad(pitch or 0), 0, 0) * Angles(0, rad((spin or 0) * side), 0)
+	local r = Angles(0, 0, rad((roll or 0) * side))
+		* Angles(rad(pitch or 0), 0, 0)
+		* Angles(0, rad((spin or 0) * side), 0)
 	return CFrame.new((x or 0) * side, y or 0, z or 0) * r
 end
 

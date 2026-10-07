@@ -43,7 +43,13 @@ local GRIMM_RED = Color3.fromRGB(255, 40, 30)
 
 --[[ PRIMITIVES ]]
 
-local function fxPart(size: Vector3, cframe: CFrame, color: Color3, material: Enum.Material?, shape: Enum.PartType?): Part
+local function fxPart(
+	size: Vector3,
+	cframe: CFrame,
+	color: Color3,
+	material: Enum.Material?,
+	shape: Enum.PartType?
+): Part
 	local part = Instance.new("Part")
 	part.Anchored = true
 	part.CanCollide = false
@@ -63,7 +69,13 @@ local function fxPart(size: Vector3, cframe: CFrame, color: Color3, material: En
 	return part
 end
 
-local function tween(instance: Instance, duration: number, goal: { [string]: any }, style: Enum.EasingStyle?, direction: Enum.EasingDirection?)
+local function tween(
+	instance: Instance,
+	duration: number,
+	goal: { [string]: any },
+	style: Enum.EasingStyle?,
+	direction: Enum.EasingDirection?
+)
 	local info = TweenInfo.new(duration, style or Enum.EasingStyle.Quad, direction or Enum.EasingDirection.Out)
 	local t = TweenService:Create(instance, info, goal)
 	t:Play()
@@ -82,7 +94,14 @@ local function fadeAway(part: BasePart, duration: number, goal: { [string]: any 
 end
 
 -- Expanding, fading sphere.
-local function sphere(position: Vector3, color: Color3, from: number, to: number, duration: number, material: Enum.Material?)
+local function sphere(
+	position: Vector3,
+	color: Color3,
+	from: number,
+	to: number,
+	duration: number,
+	material: Enum.Material?
+)
 	local ball = fxPart(Vector3.one * from, CFrame.new(position), color, material, Enum.PartType.Ball)
 	ball.Transparency = 0.15
 	fadeAway(ball, duration, { Size = Vector3.one * to })
@@ -121,7 +140,15 @@ local function particles(parent: Instance, props: { [string]: any }): ParticleEm
 end
 
 -- One-shot particle burst at a point.
-local function burst(position: Vector3, color: Color3, count: number, speed: number, size: number, texture: string?, lifetime: number?)
+local function burst(
+	position: Vector3,
+	color: Color3,
+	count: number,
+	speed: number,
+	size: number,
+	texture: string?,
+	lifetime: number?
+)
 	local holder = fxPart(Vector3.new(0.1, 0.1, 0.1), CFrame.new(position), color)
 	holder.Transparency = 1
 	local emitter = particles(holder, {
@@ -227,8 +254,19 @@ local function popupText(position: Vector3, text: string, color: Color3, size: n
 	label.TextSize = size
 	label.Parent = gui
 	local offset = Vector3.new(random:NextNumber(-1, 1), 0, random:NextNumber(-1, 1))
-	tween(holder, 0.8, { CFrame = CFrame.new(position + offset + Vector3.new(0, rise or 2.5, 0)) }, Enum.EasingStyle.Quart)
-	tween(label, 0.8, { TextTransparency = 1, TextStrokeTransparency = 1 }, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+	tween(
+		holder,
+		0.8,
+		{ CFrame = CFrame.new(position + offset + Vector3.new(0, rise or 2.5, 0)) },
+		Enum.EasingStyle.Quart
+	)
+	tween(
+		label,
+		0.8,
+		{ TextTransparency = 1, TextStrokeTransparency = 1 },
+		Enum.EasingStyle.Quint,
+		Enum.EasingDirection.In
+	)
 	label.TextSize = size * 1.5
 	tween(label, 0.18, { TextSize = size }, Enum.EasingStyle.Back)
 	Debris:AddItem(holder, 0.85)
@@ -347,7 +385,13 @@ local function onHit(payload: { [string]: any })
 	if not isTick then
 		if auraAbsorbed and victimRoot then
 			-- Aura shimmer: a translucent force-field shell flashes around the victim.
-			local shell = fxPart(Vector3.one * 7, CFrame.new(victimRoot.Position), color, Enum.Material.ForceField, Enum.PartType.Ball)
+			local shell = fxPart(
+				Vector3.one * 7,
+				CFrame.new(victimRoot.Position),
+				color,
+				Enum.Material.ForceField,
+				Enum.PartType.Ball
+			)
 			shell.Transparency = 0.2
 			fadeAway(shell, 0.35, { Size = Vector3.one * 8 })
 			flashRig(victim, color, 0.25, 0.45)
@@ -355,7 +399,15 @@ local function onHit(payload: { [string]: any })
 		else
 			flashRig(victim, WHITE, 0.16, 0.25)
 		end
-		burst(position, if auraAbsorbed then color else Color3.fromRGB(255, 236, 210), if heavy then 26 else 14, if heavy then 38 else 26, 0.7, SPARKLE, 0.3)
+		burst(
+			position,
+			if auraAbsorbed then color else Color3.fromRGB(255, 236, 210),
+			if heavy then 26 else 14,
+			if heavy then 38 else 26,
+			0.7,
+			SPARKLE,
+			0.3
+		)
 		sphere(position, WHITE, 0.6, if heavy then 4.5 else 2.8, 0.14)
 		Audio.playAt(if heavy then "HitHeavy" else "Hit", position)
 
@@ -456,7 +508,13 @@ local function simulateProjectile(payload: { [string]: any })
 	local gravity: number = if type(payload.gravity) == "number" then payload.gravity else 0
 	local bolt = payload.kind == "Bolt"
 	local color = if bolt then Color3.fromRGB(255, 240, 120) else Color3.fromRGB(255, 110, 190)
-	local body = fxPart(Vector3.one * (if bolt then 0.7 else 0.9), CFrame.new(origin), color, Enum.Material.Neon, Enum.PartType.Ball)
+	local body = fxPart(
+		Vector3.one * (if bolt then 0.7 else 0.9),
+		CFrame.new(origin),
+		color,
+		Enum.Material.Neon,
+		Enum.PartType.Ball
+	)
 	local a0 = Instance.new("Attachment")
 	a0.Position = Vector3.new(0, 0.3, 0)
 	a0.Parent = body
@@ -555,7 +613,8 @@ local function glyphDisc(position: Vector3, color: Color3, radius: number, durat
 			return
 		end
 		for i, spoke in spokes do
-			spoke.CFrame = CFrame.new(position + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, t * 0.8 + (i - 1) * math.pi / 3, 0)
+			spoke.CFrame = CFrame.new(position + Vector3.new(0, 0.2, 0))
+				* CFrame.Angles(0, t * 0.8 + (i - 1) * math.pi / 3, 0)
 		end
 	end)
 end
@@ -582,8 +641,14 @@ local function frostSpire(origin: Vector3, direction: Vector3, range: number)
 				spike.Color = Color3.fromRGB(170, 225, 255)
 				spike.Transparency = 0.15
 				spike.Size = Vector3.new(random:NextNumber(0.8, 1.6), height, random:NextNumber(1, 2))
-				local tilt = CFrame.Angles(random:NextNumber(-0.4, 0.4), random:NextNumber(0, 6.28), random:NextNumber(-0.4, 0.4))
-				local goal = CFrame.new(base + Vector3.new(random:NextNumber(-1.2, 1.2), height / 2 - 0.3, random:NextNumber(-1.2, 1.2))) * tilt
+				local tilt = CFrame.Angles(
+					random:NextNumber(-0.4, 0.4),
+					random:NextNumber(0, 6.28),
+					random:NextNumber(-0.4, 0.4)
+				)
+				local goal = CFrame.new(
+					base + Vector3.new(random:NextNumber(-1.2, 1.2), height / 2 - 0.3, random:NextNumber(-1.2, 1.2))
+				) * tilt
 				spike.CFrame = goal - Vector3.new(0, height, 0)
 				spike.Parent = folder
 				tween(spike, 0.12, { CFrame = goal }, Enum.EasingStyle.Back)
@@ -705,7 +770,10 @@ local function onEffect(payload: { [string]: any })
 		burst(root.Position, color, 30, 26, 0.7, SPARKLE, 0.8)
 		Audio.playOn("Whoosh", root)
 	elseif name == "ShadowStep" then
-		local position: Vector3 = if typeof(payload.position) == "Vector3" then payload.position elseif root then root.Position else Vector3.zero
+		local position: Vector3 = if typeof(payload.position) == "Vector3"
+			then payload.position
+			elseif root then root.Position
+			else Vector3.zero
 		burst(position, Color3.fromRGB(30, 20, 46), 28, 10, 2.4, SMOKE, 0.9)
 		Audio.playAt("Dodge", position)
 	elseif name == "CloneFade" and rig then
@@ -744,15 +812,25 @@ local function onEffect(payload: { [string]: any })
 			lightningChain(root.Position, target.Position)
 			shockwave(target.Position, color, 1, 8, 0.3)
 		else
-			local direction: Vector3 = if typeof(payload.direction) == "Vector3" then payload.direction else root.CFrame.LookVector
+			local direction: Vector3 = if typeof(payload.direction) == "Vector3"
+				then payload.direction
+				else root.CFrame.LookVector
 			shockwave(root.Position + direction * 4, color, 2, 14, 0.4, direction)
 		end
 		Audio.playOn("Semblance", root)
 	elseif name == "Glyph" then
-		local position: Vector3 = if typeof(payload.position) == "Vector3" then payload.position elseif root then root.Position else Vector3.zero
+		local position: Vector3 = if typeof(payload.position) == "Vector3"
+			then payload.position
+			elseif root then root.Position
+			else Vector3.zero
 		local def = Semblances.get("Glyph")
 		local color = if def then def.color else WHITE
-		glyphDisc(position, color, if type(payload.radius) == "number" then payload.radius else 10, if type(payload.duration) == "number" then payload.duration else 4)
+		glyphDisc(
+			position,
+			color,
+			if type(payload.radius) == "number" then payload.radius else 10,
+			if type(payload.duration) == "number" then payload.duration else 4
+		)
 		shockwave(position + Vector3.new(0, 0.3, 0), WHITE, 2, 18, 0.35)
 		Audio.playAt("Semblance", position)
 	elseif name == "Harden" and root then
@@ -801,7 +879,13 @@ local function onEffect(payload: { [string]: any })
 	elseif name == "GrimmTell" and rig then
 		local head = partOf(rig, "Head")
 		if head then
-			local glint = fxPart(Vector3.one * 0.4, head.CFrame * CFrame.new(0, 0.2, -0.8), GRIMM_RED, Enum.Material.Neon, Enum.PartType.Ball)
+			local glint = fxPart(
+				Vector3.one * 0.4,
+				head.CFrame * CFrame.new(0, 0.2, -0.8),
+				GRIMM_RED,
+				Enum.Material.Neon,
+				Enum.PartType.Ball
+			)
 			fadeAway(glint, 0.35, { Size = Vector3.one * 3 })
 		end
 	elseif name == "GrimmDissolve" then
@@ -831,7 +915,9 @@ local function onMarker(rig: Model, _clipId: string, name: string, data: any)
 	if name == "Glint" then
 		local weapon = rig:FindFirstChild("Weapon")
 		local handle = if weapon then weapon:FindFirstChild("HandleRight") else nil
-		local anchor = if handle and handle:IsA("BasePart") then handle.Position else root.Position + Vector3.new(0, 2, 0)
+		local anchor = if handle and handle:IsA("BasePart")
+			then handle.Position
+			else root.Position + Vector3.new(0, 2, 0)
 		local color = if data == "Red" then Color3.fromRGB(255, 60, 60) else WHITE
 		local star = fxPart(Vector3.one * 0.5, CFrame.new(anchor), color, Enum.Material.Neon, Enum.PartType.Ball)
 		fadeAway(star, 0.3, { Size = Vector3.one * 4 })

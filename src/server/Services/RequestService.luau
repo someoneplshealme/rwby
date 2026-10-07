@@ -71,7 +71,9 @@ handlers.CreateCharacter = function(player, data)
 	local kingdom = Origins.kingdom(if type(data.kingdom) == "string" then data.kingdom else "Vale")
 	local color = Origins.color(if type(data.color) == "string" then data.color else "Rose")
 	local faunus = if type(data.faunus) == "string" and Origins.isTrait(data.faunus) then data.faunus else ""
-	local weaponId = if type(data.weapon) == "string" and Weapons.get(data.weapon) then data.weapon else "CrescentScythe"
+	local weaponId = if type(data.weapon) == "string" and Weapons.get(data.weapon)
+		then data.weapon
+		else "CrescentScythe"
 
 	DataService.update(player, function(p)
 		p.Created = true

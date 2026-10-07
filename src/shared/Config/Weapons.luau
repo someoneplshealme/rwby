@@ -171,7 +171,9 @@ Weapons.CrescentScythe = {
 				move({
 					clip = "Scythe.M1_4",
 					hitbox = box(9, 8, 10, 5),
-					hits = { hit({ damage = 12, posture = 16, hitstun = 0.85, knockback = kb(0, 22, 48), heavy = true }) },
+					hits = {
+						hit({ damage = 12, posture = 16, hitstun = 0.85, knockback = kb(0, 22, 48), heavy = true }),
+					},
 				}),
 			}),
 			critical = move({
@@ -265,7 +267,9 @@ Weapons.EmberGauntlets = {
 				move({
 					clip = "Gauntlets.M1_5",
 					hitbox = box(7, 7, 8, 4),
-					hits = { hit({ damage = 10, posture = 14, hitstun = 0.8, knockback = kb(0, 14, 55), heavy = true }) },
+					hits = {
+						hit({ damage = 10, posture = 14, hitstun = 0.8, knockback = kb(0, 14, 55), heavy = true }),
+					},
 				}),
 			}),
 			critical = move({
@@ -400,7 +404,9 @@ Weapons.AegisBlade = {
 					clip = "Aegis.GS_M1_3",
 					hyperArmor = true,
 					hitbox = box(8, 10, 12, 5.5),
-					hits = { hit({ damage = 18, posture = 28, hitstun = 0.95, knockback = kb(0, 16, 38), heavy = true }) },
+					hits = {
+						hit({ damage = 18, posture = 28, hitstun = 0.95, knockback = kb(0, 16, 38), heavy = true }),
+					},
 				}),
 			}),
 			critical = move({

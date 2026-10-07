@@ -56,6 +56,18 @@ local function request(kind: string, data: { [string]: any }?): Result
 	return { ok = false, message = "The server didn't answer. Try again." }
 end
 
+local function setControlsEnabled(enabled: boolean)
+	pcall(function()
+		local playerModule = require(player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule") :: any) :: any
+		local controls = playerModule:GetControls()
+		if enabled then
+			controls:Enable()
+		else
+			controls:Disable()
+		end
+	end)
+end
+
 local function setBlocked(blocked: boolean)
 	InputController.blocked = blocked
 	if blocked then
@@ -93,7 +105,12 @@ local function modal(title: string, width: number, height: number): Frame
 		Text = title,
 		Parent = frame,
 	})
-	local close = Theme.button("✕", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0), Size = UDim2.fromOffset(32, 32), Parent = frame })
+	local close = Theme.button("✕", {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromScale(1, 0),
+		Size = UDim2.fromOffset(32, 32),
+		Parent = frame,
+	})
 	close.MouseButton1Click:Connect(function()
 		Audio.ui("UIClick")
 		closeModal()
@@ -101,7 +118,8 @@ local function modal(title: string, width: number, height: number): Frame
 	openModal = frame
 	setBlocked(true)
 	frame.Size = UDim2.fromOffset(width * 0.94, height * 0.94)
-	TweenService:Create(frame, TweenInfo.new(0.18, Enum.EasingStyle.Back), { Size = UDim2.fromOffset(width, height) }):Play()
+	TweenService:Create(frame, TweenInfo.new(0.18, Enum.EasingStyle.Back), { Size = UDim2.fromOffset(width, height) })
+		:Play()
 	return frame
 end
 
@@ -120,7 +138,14 @@ local function list(parent: Instance, position: UDim2, size: UDim2, padding: num
 	})
 end
 
-local function text(parent: Instance, value: string, size: number, font: Enum.Font?, color: Color3?, height: number?): TextLabel
+local function text(
+	parent: Instance,
+	value: string,
+	size: number,
+	font: Enum.Font?,
+	color: Color3?,
+	height: number?
+): TextLabel
 	return New("TextLabel", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, height or size + 6),
@@ -157,7 +182,8 @@ local function revealSemblance(label: TextLabel, detail: TextLabel, result: stri
 		label.Text = def.name
 		label.TextColor3 = def.color
 		local rarityColor = Semblances.RarityColors[def.rarity] or Colors.Text
-		detail.Text = `<font color="#{rarityColor:ToHex()}"><b>{string.upper(def.rarity)}</b></font>\n{def.description}\n<i>Passive: {def.passive}</i>`
+		detail.Text =
+			`<font color="#{rarityColor:ToHex()}"><b>{string.upper(def.rarity)}</b></font>\n{def.description}\n<i>Passive: {def.passive}</i>`
 		label.TextSize = 40
 		TweenService:Create(label, TweenInfo.new(0.35, Enum.EasingStyle.Back), { TextSize = 30 }):Play()
 		Audio.ui("UIConfirm")
@@ -197,6 +223,7 @@ local function showCreation()
 	end
 	creationOpen = true
 	setBlocked(true)
+	setControlsEnabled(false)
 
 	local choice = {
 		name = "",
@@ -222,7 +249,7 @@ local function showCreation()
 	})
 	New("TextLabel", {
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, 48, 0, 34),
+		Position = UDim2.fromOffset(48, 34),
 		Size = UDim2.new(1, -96, 0, 46),
 		Font = Fonts.Title,
 		TextSize = 40,
@@ -233,7 +260,7 @@ local function showCreation()
 	})
 	New("TextLabel", {
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, 50, 0, 82),
+		Position = UDim2.fromOffset(50, 82),
 		Size = UDim2.new(1, -96, 0, 22),
 		Font = Fonts.Script,
 		TextSize = 22,
@@ -243,7 +270,7 @@ local function showCreation()
 		Parent = screen,
 	})
 
-	local left = list(screen, UDim2.new(0, 48, 0, 124), UDim2.new(0.48, -60, 1, -210), 10)
+	local left = list(screen, UDim2.fromOffset(48, 124), UDim2.new(0.48, -60, 1, -210), 10)
 	local right = list(screen, UDim2.new(0.5, 12, 0, 124), UDim2.new(0.5, -60, 1, -210), 10)
 
 	-- Name.
@@ -292,7 +319,8 @@ local function showCreation()
 		table.insert(options, { id = trait.id, name = `Faunus · {trait.id}` })
 	end
 	for _, option in options do
-		local button = Theme.button(option.name, { Size = UDim2.fromOffset(128, 40), TextSize = 13, Parent = heritageRow })
+		local button =
+			Theme.button(option.name, { Size = UDim2.fromOffset(128, 40), TextSize = 13, Parent = heritageRow })
 		heritageButtons[option.id] = button
 		button.MouseButton1Click:Connect(function()
 			Audio.ui("UIClick")
@@ -339,7 +367,11 @@ local function showCreation()
 				Parent = right,
 			})
 			Theme.padding(10).Parent = card
-			text(card, `<b>{weapon.name}</b>  <font color="#a09aac">{weapon.tagline}  ·  {table.concat(forms, "  ⇄  ")}</font>`, 15)
+			text(
+				card,
+				`<b>{weapon.name}</b>  <font color="#a09aac">{weapon.tagline}  ·  {table.concat(forms, "  ⇄  ")}</font>`,
+				15
+			)
 			local description = text(card, weapon.description, 12, Fonts.Body, Colors.Muted, 32)
 			description.Position = UDim2.fromOffset(0, 22)
 			weaponButtons[id] = card
@@ -448,7 +480,12 @@ local function showCreation()
 			task.wait(0.2)
 			screen:Destroy()
 			setBlocked(false)
-			HudController.banner("WELCOME TO BEACON", "Head through the launch pads to the Emerald Forest — the Grimm await.", Colors.Gold)
+			setControlsEnabled(true)
+			HudController.banner(
+				"WELCOME TO BEACON",
+				"Head through the launch pads to the Emerald Forest — the Grimm await.",
+				Colors.Gold
+			)
 		else
 			status.Text = result.message or "Something went wrong."
 		end
@@ -467,14 +504,21 @@ local function showStats()
 
 	local kingdom = Origins.kingdom(profile.Kingdom)
 	local heritage = if profile.Faunus ~= "" then `Faunus ({profile.Faunus})` else "Human"
-	text(body, `{kingdom.name} · {heritage} · <font color="#ffce5a">{kingdom.bonus}</font>`, 14, Fonts.Bold, Colors.Muted)
+	text(
+		body,
+		`{kingdom.name} · {heritage} · <font color="#ffce5a">{kingdom.bonus}</font>`,
+		14,
+		Fonts.Bold,
+		Colors.Muted
+	)
 	text(body, `XP {profile.XP} / {Progression.xpToNext(profile.Level)}   ·   Lien {profile.Lien}`, 14)
 	text(body, `<b>ATTRIBUTES</b>   {profile.Points} point(s) to spend`, 15, Fonts.Bold, Colors.Gold)
 
 	for _, attribute in Progression.Attributes do
 		local row = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = body })
 		local value = profile.Attributes[attribute.id] or 0
-		text(row, `<b>{attribute.name}</b>  {value}   <font color="#a09aac">{attribute.blurb}</font>`, 14).Size = UDim2.new(1, -50, 1, 0)
+		text(row, `<b>{attribute.name}</b>  {value}   <font color="#a09aac">{attribute.blurb}</font>`, 14).Size =
+			UDim2.new(1, -50, 1, 0)
 		local plus = Theme.button("+", {
 			AnchorPoint = Vector2.new(1, 0),
 			Position = UDim2.fromScale(1, 0),
@@ -496,9 +540,17 @@ local function showStats()
 
 	local def = Semblances.get(profile.Semblance)
 	if def then
-		text(body, `<b>SEMBLANCE · <font color="#{def.color:ToHex()}">{def.name}</font></b>  ({def.rarity})`, 15, Fonts.Bold)
+		text(
+			body,
+			`<b>SEMBLANCE · <font color="#{def.color:ToHex()}">{def.name}</font></b>  ({def.rarity})`,
+			15,
+			Fonts.Bold
+		)
 		text(body, `{def.description}\n<i>Passive: {def.passive}</i>`, 13, Fonts.Body, Colors.Muted, 44)
-		local reroll = Theme.button(`Reroll Semblance ({profile.Spins} spins)`, { Size = UDim2.fromOffset(260, 34), Parent = body })
+		local reroll = Theme.button(
+			`Reroll Semblance ({profile.Spins} spins)`,
+			{ Size = UDim2.fromOffset(260, 34), Parent = body }
+		)
 		local armed = false
 		reroll.MouseButton1Click:Connect(function()
 			if not armed then
@@ -533,7 +585,7 @@ end
 local function showShop()
 	local frame = modal("From Dust Till Dawn", 600, 440)
 	local body = list(frame, UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -44), 10)
-	text(body, "\"Dust: nature's own fuel. Mind the counter.\"", 14, Fonts.Script, Colors.Muted)
+	text(body, '"Dust: nature\'s own fuel. Mind the counter."', 14, Fonts.Script, Colors.Muted)
 	local profile = ProfileStore.get()
 	for _, id in Dust.Order do
 		local def = Dust.get(id)
@@ -547,7 +599,11 @@ local function showShop()
 				Parent = row,
 			}, { Theme.corner(4) })
 			local owned = if profile then profile.Dust[id] or 0 else 0
-			local info = text(row, `<b>{def.name}</b> — {def.technique} [{def.key}]   <font color="#ffce5a">Ⱡ{def.price}</font>   owned {owned}/{Dust.MaxVials}\n<font color="#a09aac">{def.description}</font>`, 13)
+			local info = text(
+				row,
+				`<b>{def.name}</b> — {def.technique} [{def.key}]   <font color="#ffce5a">Ⱡ{def.price}</font>   owned {owned}/{Dust.MaxVials}\n<font color="#a09aac">{def.description}</font>`,
+				13
+			)
 			info.Position = UDim2.fromOffset(22, 0)
 			info.Size = UDim2.new(1, -150, 1, 0)
 			for index, amount in { 1, 3 } do
@@ -560,7 +616,10 @@ local function showShop()
 				})
 				buy.MouseButton1Click:Connect(function()
 					local result = request("BuyDust", { id = id, amount = amount })
-					HudController.toast(result.message or (if result.ok then "Purchased." else "Could not buy."), if result.ok then "Reward" else "Danger")
+					HudController.toast(
+						result.message or (if result.ok then "Purchased." else "Could not buy."),
+						if result.ok then "Reward" else "Danger"
+					)
 					if result.ok then
 						Audio.ui("UIConfirm")
 						task.wait(0.15)

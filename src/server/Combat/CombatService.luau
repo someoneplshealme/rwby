@@ -257,6 +257,10 @@ function CombatService.resolve(attacker: Combatant, target: Combatant, strike: S
 		target.humanoid.Health = 0
 		payload.result = "Clone"
 		CombatService.broadcast("Hit", payload)
+		local model = target.model
+		task.delay(0.15, function()
+			model:Destroy()
+		end)
 		return "Immune"
 	end
 
@@ -599,7 +603,13 @@ function CombatService.performMove(c: Combatant, move: MoveDef, ctx: MoveContext
 			elseif event.kind == "Shoot" then
 				local shot = move.shot
 				if shot then
-					CombatService.fireShot(c, shot, ctx.aim or ctx.look)
+					local aim = ctx.aim or ctx.look
+					if aim and #shots > 1 then
+						-- Multi-shot moves fan their shots across the aim direction.
+						local spread = (event.index - (#shots + 1) / 2) * 9
+						aim = CFrame.fromAxisAngle(Vector3.yAxis, math.rad(spread)) * aim
+					end
+					CombatService.fireShot(c, shot, aim)
 				end
 			elseif event.kind == "Lunge" then
 				local speed = if type(event.data) == "number" then event.data else 30

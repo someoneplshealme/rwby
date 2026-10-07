@@ -58,7 +58,15 @@ local Grimm: { [string]: GrimmDef } = {
 		boneColor = Color3.fromRGB(232, 228, 216),
 		eyeColor = Color3.fromRGB(255, 30, 30),
 		moves = {
-			attack(7, 3, move({ clip = "Grimm.Swipe", hitbox = box(8, 7, 8, 4), hits = { hit({ damage = 9, posture = 14, hitstun = 0.5 }) } })),
+			attack(
+				7,
+				3,
+				move({
+					clip = "Grimm.Swipe",
+					hitbox = box(8, 7, 8, 4),
+					hits = { hit({ damage = 9, posture = 14, hitstun = 0.5 }) },
+				})
+			),
 			attack(
 				7,
 				2,
@@ -77,7 +85,9 @@ local Grimm: { [string]: GrimmDef } = {
 				move({
 					clip = "Grimm.Pounce",
 					hitbox = box(7, 7, 8, 4),
-					hits = { hit({ damage = 12, posture = 18, hitstun = 0.7, knockback = kb(0, 16, 36), heavy = true }) },
+					hits = {
+						hit({ damage = 12, posture = 18, hitstun = 0.7, knockback = kb(0, 16, 36), heavy = true }),
+					},
 				})
 			),
 		},
@@ -100,7 +110,15 @@ local Grimm: { [string]: GrimmDef } = {
 		boneColor = Color3.fromRGB(245, 240, 228),
 		eyeColor = Color3.fromRGB(255, 40, 20),
 		moves = {
-			attack(8, 2, move({ clip = "Grimm.Swipe", hitbox = box(10, 8, 10, 5), hits = { hit({ damage = 13, posture = 20, hitstun = 0.55 }) } })),
+			attack(
+				8,
+				2,
+				move({
+					clip = "Grimm.Swipe",
+					hitbox = box(10, 8, 10, 5),
+					hits = { hit({ damage = 13, posture = 20, hitstun = 0.55 }) },
+				})
+			),
 			attack(
 				8,
 				2,
@@ -120,7 +138,9 @@ local Grimm: { [string]: GrimmDef } = {
 					clip = "Grimm.Pounce",
 					unparryable = true,
 					hitbox = box(9, 8, 10, 5),
-					hits = { hit({ damage = 16, posture = 24, hitstun = 0.8, knockback = kb(0, 20, 44), heavy = true }) },
+					hits = {
+						hit({ damage = 16, posture = 24, hitstun = 0.8, knockback = kb(0, 20, 44), heavy = true }),
+					},
 				})
 			),
 		},

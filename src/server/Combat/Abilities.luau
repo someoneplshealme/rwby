@@ -356,7 +356,10 @@ dustCasts.Lightning = function(c, payload, def)
 	local direction = if typeof(aim) == "Vector3" and aim.Magnitude > 0.1 then aim.Unit else lookOf(c, payload)
 	local origin = c.root.Position + Vector3.new(0, 1.4, 0)
 	local velocity = direction * p.speed
-	CombatService.broadcast("Projectile", { rig = c.model, kind = "Bolt", from = origin, velocity = velocity, gravity = 0 })
+	CombatService.broadcast(
+		"Projectile",
+		{ rig = c.model, kind = "Bolt", from = origin, velocity = velocity, gravity = 0 }
+	)
 	Projectiles.launch({
 		origin = origin,
 		velocity = velocity,
@@ -391,7 +394,10 @@ dustCasts.Lightning = function(c, payload, def)
 			end
 			local chained = best
 			if chained then
-				CombatService.broadcast("Effect", { name = "Chain", from = target.root.Position, to = chained.root.Position })
+				CombatService.broadcast(
+					"Effect",
+					{ name = "Chain", from = target.root.Position, to = chained.root.Position }
+				)
 				CombatService.resolve(c, chained, {
 					damage = p.damage * 0.6,
 					posture = p.posture * 0.6,

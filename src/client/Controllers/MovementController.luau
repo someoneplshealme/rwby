@@ -203,7 +203,11 @@ function MovementController.recoil(aim: Vector3, airStrength: number, groundStre
 	elseif groundStrength > 0 then
 		local flat = Vector3.new(aim.X, 0, aim.Z)
 		if flat.Magnitude > 0.01 then
-			Impulse.apply(root, -flat.Unit * groundStrength, { duration = 0.12, planar = true, decay = true, name = "Recoil" })
+			Impulse.apply(
+				root,
+				-flat.Unit * groundStrength,
+				{ duration = 0.12, planar = true, decay = true, name = "Recoil" }
+			)
 		end
 	end
 end
@@ -239,7 +243,8 @@ local function walkSpeed(model: Model, humanoid: Humanoid): number
 	local state = model:GetAttribute("State")
 	local slow = model:GetAttribute("SlowFactor")
 	local speedStat = model:GetAttribute("MoveSpeed")
-	local multiplier = (if type(slow) == "number" then slow else 1) * (if type(speedStat) == "number" then speedStat else 1)
+	local multiplier = (if type(slow) == "number" then slow else 1)
+		* (if type(speedStat) == "number" then speedStat else 1)
 
 	local weapon = Weapons.get(tostring(model:GetAttribute("Weapon") or ""))
 	local formName = model:GetAttribute("WeaponForm")
@@ -247,8 +252,10 @@ local function walkSpeed(model: Model, humanoid: Humanoid): number
 		multiplier *= Weapons.form(weapon, formName).speedMultiplier or 1
 	end
 
-	if model:GetAttribute("Knocked") then
-		return 2.5
+	if model:GetAttribute("Dead") then
+		return 0
+	elseif model:GetAttribute("Knocked") then
+		return 1.5
 	elseif model:GetAttribute("Stunned") or model:GetAttribute("GuardBroken") then
 		return 3
 	elseif os.clock() < localBusyUntil then

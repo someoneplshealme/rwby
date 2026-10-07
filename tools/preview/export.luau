@@ -26,7 +26,6 @@ local Harness = require("../lune/harness")
 local shared = Harness.mount("src/shared")
 local Animation = shared.Animation
 local Joints = Harness.require(Animation.Joints)
-local Clip = Harness.require(Animation.Clip)
 local ClipLibrary = Harness.require(Animation.ClipLibrary)
 local Composer = Harness.require(Animation.Composer)
 local Locomotion = Harness.require(Animation.Locomotion)
@@ -141,7 +140,14 @@ local function solve(pose, form: string?, pieceCFrames, hidden)
 				elseif piece.hiddenIn and piece.hiddenIn[form] then
 					transparency = 1
 				end
-				add(piece.name, handles[hand] * local_, piece.size, colorOf(weapon, piece.color), piece.shape, transparency)
+				add(
+					piece.name,
+					handles[hand] * local_,
+					piece.size,
+					colorOf(weapon, piece.color),
+					piece.shape,
+					transparency
+				)
 			end
 		end
 		addPieces(weapon.right, "Right")
@@ -176,9 +182,47 @@ local function composed(state, locoPose, actions)
 end
 
 local frames = {}
+local rows = {}
 local title = options.title
 
-if mode == "clip" or mode == "pose" then
+local function clipFrames(id: string, withMidpoints: boolean)
+	local clip = ClipLibrary.expect(id)
+	local state, locoPose = settle(Vector3.zero, 1)
+	local times = {}
+	if options.frames then
+		local n = tonumber(options.frames) :: number
+		for i = 0, n - 1 do
+			table.insert(times, clip.length * i / math.max(n - 1, 1))
+		end
+	else
+		for i, t in clip.times do
+			table.insert(times, t)
+			local nextT = clip.times[i + 1]
+			if withMidpoints and nextT and nextT - t > 0.06 then
+				table.insert(times, (t + nextT) / 2)
+			end
+		end
+	end
+	local result = {}
+	for _, t in times do
+		local pose = composed(state, locoPose, { { clip = clip, time = t, weight = 1 } })
+		local label = string.format("%.2f", t)
+		for _, marker in clip.markers do
+			if math.abs(marker.t - t) < 0.02 then
+				label ..= " " .. marker.name
+			end
+		end
+		table.insert(result, { label = label, parts = solve(pose, options.form) })
+	end
+	return result
+end
+
+if mode == "sheet" then
+	for _, id in positional do
+		table.insert(rows, { title = id, frames = clipFrames(id, options.mid == "1") })
+	end
+	title = title or `moveset ({#rows} clips)`
+elseif mode == "clip" or mode == "pose" then
 	local id = positional[1]
 	local clip = ClipLibrary.expect(id)
 	local state, locoPose = settle(Vector3.zero, 1)
@@ -231,7 +275,10 @@ elseif mode == "loco" then
 			}, pose)
 		end
 		local final = composed(state, pose, nil)
-		table.insert(frames, { label = string.format("phase %.0f°", math.deg(state.phase)), parts = solve(final, options.form) })
+		table.insert(
+			frames,
+			{ label = string.format("phase %.0f°", math.deg(state.phase)), parts = solve(final, options.form) }
+		)
 	end
 	title = title or `locomotion {options.style or "Huntsman"} @ {speed}`
 elseif mode == "stance" then
@@ -249,18 +296,27 @@ elseif mode == "shift" then
 	for i = 0, n - 1 do
 		local t = duration * i / (n - 1)
 		local pieceCFrames, hidden = {}, {}
-		for index, piece in weapon.right do
-			local cframe, transparency = WeaponShift.sample(piece, index, #weapon.right, fromForm, toForm, t, duration)
-			pieceCFrames[piece.name] = cframe
-			hidden[piece.name] = transparency
+		for _, list in { weapon.right, weapon.left or {} } do
+			for index, piece in list do
+				local cframe, transparency = WeaponShift.sample(piece, index, #list, fromForm, toForm, t, duration)
+				pieceCFrames[piece.name] = cframe
+				hidden[piece.name] = transparency
+			end
 		end
 		local pose = composed(state, locoPose, nil)
-		table.insert(frames, { label = string.format("t=%.2f", t), parts = solve(pose, fromForm, pieceCFrames, hidden) })
+		table.insert(
+			frames,
+			{ label = string.format("t=%.2f", t), parts = solve(pose, fromForm, pieceCFrames, hidden) }
+		)
 	end
 	title = title or `mecha-shift {options.weapon} {fromForm} -> {toForm}`
 else
 	error(`unknown mode {mode}`)
 end
 
-fs.writeFile(outPath, serde.encode("json", { title = title, frames = frames, groundY = -3 }))
-print(`exported {#frames} frames to {outPath}`)
+local views = if options.views then string.split(options.views, ",") else nil
+fs.writeFile(
+	outPath,
+	serde.encode("json", { title = title, frames = frames, rows = rows, groundY = -3, views = views })
+)
+print(`exported {#frames} frames, {#rows} rows to {outPath}`)

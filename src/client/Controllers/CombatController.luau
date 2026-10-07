@@ -184,7 +184,10 @@ local function setAiming(on: boolean)
 	aiming = on
 	local model = player.Character
 	local form = if model then weaponForm(model) else nil
-	local sniper = model ~= nil and model:GetAttribute("WeaponModel") == "CrescentScythe" and form ~= nil and form.ranged
+	local sniper = model ~= nil
+		and model:GetAttribute("WeaponModel") == "CrescentScythe"
+		and form ~= nil
+		and form.ranged
 	CameraController.setAiming(on, sniper)
 	MovementController.setFaceCamera(on)
 	actionRemote:FireServer("Aim", { on = on })
@@ -286,7 +289,12 @@ local function attack()
 			MovementController.turnToCamera()
 		end
 		local flat = Vector3.new(aim.X, 0, aim.Z)
-		predict("M1", clipId, { look = if flat.Magnitude > 0.01 then flat.Unit else nil, aim = aim }, Combat.AimWalkSpeed)
+		predict(
+			"M1",
+			clipId,
+			{ look = if flat.Magnitude > 0.01 then flat.Unit else nil, aim = aim },
+			Combat.AimWalkSpeed
+		)
 		pendingRecoil = { aim = aim, air = shoot.shot.recoil or 0, ground = shoot.shot.groundRecoil or 0 }
 		return
 	end
@@ -334,7 +342,12 @@ local function critical()
 	combo = 0
 	local aim = aimDirection()
 	MovementController.turnToCamera()
-	predict("Critical", move.clip, { look = MovementController.cameraFlatLook(), aim = aim }, Combat.AttackWalkSpeed * 0.6)
+	predict(
+		"Critical",
+		move.clip,
+		{ look = MovementController.cameraFlatLook(), aim = aim },
+		Combat.AttackWalkSpeed * 0.6
+	)
 	local active = current
 	if active and not move.feintable then
 		active.feintUntil = 0
@@ -373,7 +386,9 @@ local function dodge()
 		end
 		name = "Air"
 		local move = humanoid.MoveDirection
-		direction = if move.Magnitude > 0.1 then Vector3.new(move.X, 0, move.Z).Unit else MovementController.cameraFlatLook()
+		direction = if move.Magnitude > 0.1
+			then Vector3.new(move.X, 0, move.Z).Unit
+			else MovementController.cameraFlatLook()
 	end
 	localReady.Dodge = os.clock() + 0.3
 	predict("Dodge", DODGE_CLIPS[name], { dir = name, air = not grounded }, 0)

@@ -167,7 +167,8 @@ local function update()
 			local target: CFrame
 			local transparency: number
 			if fromForm then
-				target, transparency = WeaponShift.sample(piece, binding.index, binding.count, fromForm, state.form, elapsed, duration)
+				target, transparency =
+					WeaponShift.sample(piece, binding.index, binding.count, fromForm, state.form, elapsed, duration)
 			else
 				target = piece.forms[state.form] or binding.motor.C0
 				local hidden = piece.hiddenIn

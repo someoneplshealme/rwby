@@ -11,7 +11,7 @@
 	  Stance (string)      stance id, e.g. "Scythe.Scythe"
 	  Gait (string)        locomotion style ("Huntsman", "Feral", "Heavy")
 	  WeaponModel / WeaponForm  for two-handed reach
-	  Blocking, Aiming, Stunned, GuardBroken, Knocked (booleans)
+	  Blocking, Aiming, Stunned, GuardBroken, Knocked, Dead (booleans)
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -70,6 +70,7 @@ local STATE_DEFS = {
 	{ attribute = "Stunned", clip = "Stunned", fadeIn = 0.08, fadeOut = 0.25 },
 	{ attribute = "GuardBroken", clip = "GuardBroken", fadeIn = 0.06, fadeOut = 0.3 },
 	{ attribute = "Knocked", clip = "Knocked", fadeIn = 0.3, fadeOut = 0.45 },
+	{ attribute = "Dead", clip = "Dead", fadeIn = 0.35, fadeOut = 0.2 },
 }
 
 local HITSTOP_SCALE = 0.04
@@ -94,6 +95,7 @@ export type CharacterAnimator = typeof(setmetatable(
 		flinch: Spring.Spring,
 		landing: Spring.Spring,
 		recoilSpring: Spring.Spring,
+		aimPitch: number,
 		hitstopUntil: number,
 		wasGrounded: boolean,
 		fallSpeed: number,
@@ -152,6 +154,7 @@ function CharacterAnimator.new(model: Model, root: BasePart): CharacterAnimator
 		flinch = Spring.new(260, 15),
 		landing = Spring.new(220, 18),
 		recoilSpring = Spring.new(320, 20),
+		aimPitch = 0,
 		hitstopUntil = 0,
 		wasGrounded = true,
 		fallSpeed = 0,
@@ -282,7 +285,7 @@ function CharacterAnimator.play(self: CharacterAnimator, id: string, options: Pl
 	return action
 end
 
-function CharacterAnimator.stopAction(self: CharacterAnimator, action: Action, fadeOut: number?)
+function CharacterAnimator.stopAction(_self: CharacterAnimator, action: Action, fadeOut: number?)
 	if action.stopping then
 		return
 	end
@@ -365,7 +368,14 @@ function CharacterAnimator.overrideState(self: CharacterAnimator, attribute: str
 	self.overrides[attribute] = { value = value, untilTime = os.clock() + duration }
 end
 
-local function resolveStateClip(prefix: string, clipName: string): Clip.Clip?
+-- Most specific first: "<stance>_<state>" (per weapon form), "<weapon>.<state>", "Common.<state>".
+local function resolveStateClip(stanceId: string?, prefix: string, clipName: string): Clip.Clip?
+	if stanceId then
+		local specific = ClipLibrary.get(`{stanceId}_{clipName}`)
+		if specific then
+			return specific
+		end
+	end
 	return ClipLibrary.get(`{prefix}.{clipName}`) or ClipLibrary.get(`Common.{clipName}`)
 end
 
@@ -383,7 +393,7 @@ function CharacterAnimator.updateStates(self: CharacterAnimator, dt: number)
 			end
 		end
 		if active and state.clip == nil then
-			state.clip = resolveStateClip(self.stancePrefix, state.clipName)
+			state.clip = resolveStateClip(self.stanceId, self.stancePrefix, state.clipName)
 			state.time = 0
 		end
 		local target = if active and state.clip then 1 else 0
@@ -416,9 +426,14 @@ function CharacterAnimator.updateActions(self: CharacterAnimator, dt: number)
 
 		if self.onMarker and #clip.markers > 0 then
 			local callback = self.onMarker
-			Clip.forEachMarker(clip, previous, math.min(action.time, if clip.looped then math.huge else clip.length), function(marker)
-				callback(self, action, marker)
-			end)
+			Clip.forEachMarker(
+				clip,
+				previous,
+				math.min(action.time, if clip.looped then math.huge else clip.length),
+				function(marker)
+					callback(self, action, marker)
+				end
+			)
 		end
 
 		if not clip.looped and action.time >= clip.length then
@@ -480,6 +495,18 @@ function CharacterAnimator.updateAdditive(self: CharacterAnimator, dt: number, g
 	end
 	if math.abs(recoil.X) > 0.05 then
 		additive.RightArm = Joints.RA(recoil.X)
+	end
+
+	-- Aiming up or down tilts the torso and head with the shot.
+	local pitch = self.model:GetAttribute("AimPitch")
+	local aiming = self.model:GetAttribute("Aiming") == true
+	local target = if aiming and type(pitch) == "number" then math.clamp(pitch, -60, 60) else 0
+	self.aimPitch += (target - self.aimPitch) * (1 - math.exp(-14 * dt))
+	if math.abs(self.aimPitch) > 0.2 then
+		local root = additive.Root or CFrame.identity
+		additive.Root = Joints.T(-self.aimPitch * 0.45, 0, 0) * root
+		local neck = additive.Neck or CFrame.identity
+		additive.Neck = Joints.H(-self.aimPitch * 0.45, 0, 0) * neck
 	end
 end
 

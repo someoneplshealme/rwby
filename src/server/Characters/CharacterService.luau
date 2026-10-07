@@ -100,7 +100,9 @@ function CharacterService.spawn(player: Player)
 	local character = buildRig(player, color)
 	character.Name = player.Name
 	for _, child in character:GetChildren() do
-		if (child:IsA("Script") or child:IsA("LocalScript")) and (child.Name == "Animate" or child.Name == "Health") then
+		if
+			(child:IsA("Script") or child:IsA("LocalScript")) and (child.Name == "Animate" or child.Name == "Health")
+		then
 			child:Destroy()
 		end
 	end

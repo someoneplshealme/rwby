@@ -31,7 +31,13 @@ local function makePart(name: string, size: Vector3, color: Color3, cframe: CFra
 	return part
 end
 
-local function motor(name: string, parent: BasePart, part0: BasePart, part1: BasePart, frames: { c0: CFrame, c1: CFrame })
+local function motor(
+	name: string,
+	parent: BasePart,
+	part0: BasePart,
+	part1: BasePart,
+	frames: { c0: CFrame, c1: CFrame }
+)
 	local joint = Instance.new("Motor6D")
 	joint.Name = name
 	joint.Part0 = part0

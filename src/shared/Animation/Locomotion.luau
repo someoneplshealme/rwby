@@ -238,11 +238,7 @@ function Locomotion.update(state: State, input: Input, out: Pose)
 	out.Root = T(lean, twist, state.bank, 0, height, 0)
 
 	-- Head stays level-ish and keeps facing forward ------------------------------------------------
-	out.Neck = H(
-		-(lean - style.hunch) * 0.45 - style.headUp + breathe * 1.2 * idle,
-		-twist * 0.85,
-		-state.bank * 0.5
-	)
+	out.Neck = H(-(lean - style.hunch) * 0.45 - style.headUp + breathe * 1.2 * idle, -twist * 0.85, -state.bank * 0.5)
 
 	-- Legs (root space) -----------------------------------------------------------------------------
 	local axis = state.dir:Cross(Vector3.yAxis)

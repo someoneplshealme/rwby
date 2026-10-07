@@ -427,12 +427,14 @@ local function build()
 		Visible = false,
 		Parent = gui,
 	})
-	for _, spec in {
-		{ UDim2.fromOffset(12, 0), UDim2.fromOffset(4, 9) },
-		{ UDim2.fromOffset(12, 19), UDim2.fromOffset(4, 9) },
-		{ UDim2.fromOffset(0, 12), UDim2.fromOffset(9, 4) },
-		{ UDim2.fromOffset(19, 12), UDim2.fromOffset(9, 4) },
-	} do
+	for _, spec in
+		{
+			{ UDim2.fromOffset(12, 0), UDim2.fromOffset(4, 9) },
+			{ UDim2.fromOffset(12, 19), UDim2.fromOffset(4, 9) },
+			{ UDim2.fromOffset(0, 12), UDim2.fromOffset(9, 4) },
+			{ UDim2.fromOffset(19, 12), UDim2.fromOffset(9, 4) },
+		}
+	do
 		New("Frame", {
 			Position = spec[1],
 			Size = spec[2],
@@ -486,7 +488,7 @@ local function build()
 	Theme.padding(10).Parent = helpPanel
 	New("TextLabel", {
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 0),
+		Size = UDim2.fromScale(1, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Font = Fonts.Body,
 		TextSize = 12,

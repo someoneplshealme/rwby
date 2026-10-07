@@ -56,7 +56,7 @@ local Combat = {
 	FeintWindowPadding = 0.05, -- cannot feint this close to the hit frame
 	BackstabMultiplier = 1.2,
 	ChainTolerance = 0.12, -- server accepts chained inputs this early
-	MaxHitAngleCorrection = 75, -- client facing hints beyond this from the server facing are ignored
+	MaxHitAngleCorrection = 100, -- client facing hints beyond this from the server facing are ignored
 
 	-- Knocked / death
 	KnockedDuration = 15,

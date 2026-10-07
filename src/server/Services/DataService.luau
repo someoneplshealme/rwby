@@ -240,7 +240,9 @@ function DataService.init()
 			probe:GetAsync("__probe")
 		end)
 		if not probeOk then
-			warn("[Data] Studio has no DataStore access (enable 'Studio Access to API Services'); using temporary profiles")
+			warn(
+				"[Data] Studio has no DataStore access (enable 'Studio Access to API Services'); using temporary profiles"
+			)
 			store = nil
 		end
 	end

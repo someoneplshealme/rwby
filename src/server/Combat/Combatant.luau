@@ -97,8 +97,7 @@ Combatant.__index = Combatant
 
 export type Combatant = typeof(setmetatable({} :: Fields, Combatant))
 
-local DEFAULT_STATS: Progression.CombatStats =
-	Progression.stats(1, Progression.emptyAttributes(), "Vale", false, nil)
+local DEFAULT_STATS: Progression.CombatStats = Progression.stats(1, Progression.emptyAttributes(), "Vale", false, nil)
 
 function Combatant.new(model: Model, humanoid: Humanoid, root: BasePart, kind: string): Combatant
 	local now = os.clock()
@@ -196,6 +195,7 @@ function Combatant.sync(self: Combatant)
 	self:setAttr("Stunned", self.state == "Stunned")
 	self:setAttr("GuardBroken", self.state == "GuardBroken")
 	self:setAttr("Knocked", self.state == "Knocked")
+	self:setAttr("Dead", self.state == "Dead")
 	self:setAttr("Burning", self.statuses.Burn ~= nil)
 	self:setAttr("Chilled", self.statuses.Chill ~= nil)
 	self:setAttr("SlowFactor", self:slowFactor())
@@ -487,7 +487,8 @@ function Combatant.addStatus(self: Combatant, kind: string, duration: number, po
 		existing.power = math.max(existing.power, power or 0)
 		existing.source = source or existing.source
 	else
-		self.statuses[kind] = { kind = kind, untilTime = now + duration, power = power or 0, source = source, tickAt = now + 1 }
+		self.statuses[kind] =
+			{ kind = kind, untilTime = now + duration, power = power or 0, source = source, tickAt = now + 1 }
 	end
 	if kind == "Shock" then
 		self:stun(duration)
@@ -556,8 +557,10 @@ function Combatant.update(self: Combatant, dt: number): { { source: Combatant?, 
 		end
 		-- Health only trickles back out of combat.
 		if now - self.lastCombatAt > Combat.OutOfCombatTime and self.humanoid.Health < self.stats.maxHealth then
-			self.humanoid.Health =
-				math.min(self.stats.maxHealth, self.humanoid.Health + self.stats.maxHealth * Combat.HealthRegenPercent * dt)
+			self.humanoid.Health = math.min(
+				self.stats.maxHealth,
+				self.humanoid.Health + self.stats.maxHealth * Combat.HealthRegenPercent * dt
+			)
 		end
 	end
 

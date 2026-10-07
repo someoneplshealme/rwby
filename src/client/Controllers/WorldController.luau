@@ -130,7 +130,9 @@ local function update(dt: number)
 				if zone then
 					HudController.banner(
 						string.upper(zone.name),
-						if zone.safe then "Safe zone — Huntsmen cannot duel here" else "Grimm territory — stay alert",
+						if zone.safe
+							then "Safe zone — Huntsmen cannot duel here"
+							else "Grimm territory — stay alert",
 						if zone.safe then Theme.Colors.Good else Theme.Colors.Danger
 					)
 				end

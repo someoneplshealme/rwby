@@ -79,7 +79,7 @@ local function folder(name: string, parent: Instance): Folder
 end
 
 -- Vertical cylinder (Roblox cylinders run along X).
-local function column(position: Vector3, height: number, diameter: number): CFrame
+local function column(position: Vector3, height: number): CFrame
 	return CFrame.new(position + Vector3.new(0, height / 2, 0)) * CFrame.Angles(0, 0, math.rad(90))
 end
 
@@ -114,10 +114,21 @@ local function buildTerrain()
 	terrain:FillBlock(CFrame.new(0, H - 0.9, 64), Vector3.new(16, 2, 40), Enum.Material.Pavement)
 	-- Ramps down to the forests.
 	terrain:FillWedge(CFrame.new(76, H / 2, -130), Vector3.new(26, H, 64), Enum.Material.Ground)
-	terrain:FillWedge(CFrame.new(-144, H / 2, 30) * CFrame.Angles(0, math.rad(90), 0), Vector3.new(26, H, 64), Enum.Material.Ground)
+	terrain:FillWedge(
+		CFrame.new(-144, H / 2, 30) * CFrame.Angles(0, math.rad(90), 0),
+		Vector3.new(26, H, 64),
+		Enum.Material.Ground
+	)
 	-- Emerald Forest lake and hills.
 	terrain:FillBlock(CFrame.new(-150, -2.5, -380), Vector3.new(76, 5, 54), Enum.Material.Water)
-	for _, hill in { Vector3.new(170, -10, -250), Vector3.new(-200, -12, -520), Vector3.new(200, -9, -540), Vector3.new(-90, -14, -180) } do
+	for _, hill in
+		{
+			Vector3.new(170, -10, -250),
+			Vector3.new(-200, -12, -520),
+			Vector3.new(200, -9, -540),
+			Vector3.new(-90, -14, -180),
+		}
+	do
 		terrain:FillBall(hill, 22, Enum.Material.Grass)
 	end
 	-- Forever Fall's leaf-littered floor.
@@ -159,7 +170,7 @@ local function tree(parent: Instance, base: Vector3, scale: number, leaves: { Co
 	part({
 		name = "Trunk",
 		size = Vector3.new(height, 1.6 * scale, 1.6 * scale),
-		cframe = column(base - Vector3.new(0, 1, 0), height, 1.6 * scale),
+		cframe = column(base - Vector3.new(0, 1, 0), height),
 		color = trunkColor,
 		material = Enum.Material.Wood,
 		shape = Enum.PartType.Cylinder,
@@ -168,7 +179,11 @@ local function tree(parent: Instance, base: Vector3, scale: number, leaves: { Co
 	local count = random:NextInteger(2, 4)
 	for i = 1, count do
 		local size = random:NextNumber(6, 9) * scale
-		local offset = Vector3.new(random:NextNumber(-2.4, 2.4), random:NextNumber(-1, 2.5), random:NextNumber(-2.4, 2.4)) * scale
+		local offset = Vector3.new(
+			random:NextNumber(-2.4, 2.4),
+			random:NextNumber(-1, 2.5),
+			random:NextNumber(-2.4, 2.4)
+		) * scale
 		part({
 			name = "Canopy",
 			size = Vector3.new(size, size * 0.86, size),
@@ -186,7 +201,8 @@ local function rock(parent: Instance, base: Vector3, size: number)
 	part({
 		name = "Rock",
 		size = Vector3.new(size * random:NextNumber(1, 1.5), size, size * random:NextNumber(0.9, 1.4)),
-		cframe = CFrame.new(base) * CFrame.Angles(random:NextNumber(-0.3, 0.3), random:NextNumber(0, 6.28), random:NextNumber(-0.3, 0.3)),
+		cframe = CFrame.new(base)
+			* CFrame.Angles(random:NextNumber(-0.3, 0.3), random:NextNumber(0, 6.28), random:NextNumber(-0.3, 0.3)),
 		color = Color3.fromRGB(116, 112, 108),
 		material = Enum.Material.Slate,
 		parent = parent,
@@ -197,7 +213,7 @@ local function lamp(parent: Instance, base: Vector3)
 	part({
 		name = "LampPost",
 		size = Vector3.new(11, 0.5, 0.5),
-		cframe = column(base, 11, 0.5),
+		cframe = column(base, 11),
 		color = Color3.fromRGB(40, 40, 46),
 		material = Enum.Material.Metal,
 		shape = Enum.PartType.Cylinder,
@@ -296,7 +312,7 @@ local function tower(parent: Instance, base: Vector3)
 	part({
 		name = "Spire",
 		size = Vector3.new(26, 2.4, 2.4),
-		cframe = column(Vector3.new(base.X, y + 2, base.Z), 26, 2.4),
+		cframe = column(Vector3.new(base.X, y + 2, base.Z), 26),
 		color = STONE,
 		material = Enum.Material.Slate,
 		shape = Enum.PartType.Cylinder,
@@ -346,7 +362,7 @@ local function statue(parent: Instance, center: Vector3)
 	part({
 		name = "Plinth",
 		size = Vector3.new(4, 22, 22),
-		cframe = column(center, 4, 22),
+		cframe = column(center, 4),
 		color = STONE_DARK,
 		material = Enum.Material.Slate,
 		shape = Enum.PartType.Cylinder,
@@ -503,7 +519,13 @@ local function buildBeacon(root: Instance)
 		local angle = i / 12 * math.pi * 2
 		local position = Vector3.new(math.cos(angle) * 56, H, 4 + math.sin(angle) * 56)
 		if math.abs(position.X) > 14 and math.abs(position.Z - 4) > 14 then
-			tree(beacon, position, random:NextNumber(0.85, 1.05), if i % 3 == 0 then LEAF_BLOSSOM else LEAF_GREENS, Color3.fromRGB(96, 70, 52))
+			tree(
+				beacon,
+				position,
+				random:NextNumber(0.85, 1.05),
+				if i % 3 == 0 then LEAF_BLOSSOM else LEAF_GREENS,
+				Color3.fromRGB(96, 70, 52)
+			)
 		end
 		lamp(beacon, Vector3.new(math.cos(angle + 0.26) * 46, H, 4 + math.sin(angle + 0.26) * 46))
 	end
@@ -518,9 +540,12 @@ local function buildBeacon(root: Instance)
 			parent = beacon,
 		})
 	end
-	-- Cliff-edge outcrops.
+	-- Cliff-edge outcrops (leaving the forest ramp and the launch pads clear).
 	for i = -10, 10 do
-		rock(beacon, Vector3.new(i * 11 + random:NextNumber(-3, 3), H - 2, -103 + random:NextNumber(-2, 2)), random:NextNumber(5, 9))
+		local x = i * 11 + random:NextNumber(-3, 3)
+		if math.abs(x - 76) > 16 and math.abs(x) > 26 then
+			rock(beacon, Vector3.new(x, H - 2, -103 + random:NextNumber(-2, 2)), random:NextNumber(5, 9))
+		end
 	end
 end
 
@@ -571,11 +596,46 @@ local function dustShop(parent: Instance)
 	local shop = folder("FromDustTillDawn", parent)
 	local wallColor = Color3.fromRGB(84, 60, 92)
 	-- Back and side walls, roof; the street side stays open.
-	part({ name = "BackWall", size = Vector3.new(30, 20, 1), cframe = CFrame.new(center.X, H + 10, center.Z - 20), color = wallColor, material = Enum.Material.Brick, parent = shop })
-	part({ name = "SideWall", size = Vector3.new(1, 20, 40), cframe = CFrame.new(center.X - 15, H + 10, center.Z), color = wallColor, material = Enum.Material.Brick, parent = shop })
-	part({ name = "SideWall", size = Vector3.new(1, 20, 40), cframe = CFrame.new(center.X + 15, H + 10, center.Z), color = wallColor, material = Enum.Material.Brick, parent = shop })
-	part({ name = "Roof", size = Vector3.new(32, 1, 42), cframe = CFrame.new(center.X, H + 20.5, center.Z), color = Color3.fromRGB(50, 40, 56), material = Enum.Material.Slate, parent = shop })
-	part({ name = "Facade", size = Vector3.new(30, 6, 1), cframe = CFrame.new(center.X, H + 17, center.Z + 20), color = wallColor, material = Enum.Material.Brick, parent = shop })
+	part({
+		name = "BackWall",
+		size = Vector3.new(30, 20, 1),
+		cframe = CFrame.new(center.X, H + 10, center.Z - 20),
+		color = wallColor,
+		material = Enum.Material.Brick,
+		parent = shop,
+	})
+	part({
+		name = "SideWall",
+		size = Vector3.new(1, 20, 40),
+		cframe = CFrame.new(center.X - 15, H + 10, center.Z),
+		color = wallColor,
+		material = Enum.Material.Brick,
+		parent = shop,
+	})
+	part({
+		name = "SideWall",
+		size = Vector3.new(1, 20, 40),
+		cframe = CFrame.new(center.X + 15, H + 10, center.Z),
+		color = wallColor,
+		material = Enum.Material.Brick,
+		parent = shop,
+	})
+	part({
+		name = "Roof",
+		size = Vector3.new(32, 1, 42),
+		cframe = CFrame.new(center.X, H + 20.5, center.Z),
+		color = Color3.fromRGB(50, 40, 56),
+		material = Enum.Material.Slate,
+		parent = shop,
+	})
+	part({
+		name = "Facade",
+		size = Vector3.new(30, 6, 1),
+		cframe = CFrame.new(center.X, H + 17, center.Z + 20),
+		color = wallColor,
+		material = Enum.Material.Brick,
+		parent = shop,
+	})
 
 	local sign = part({
 		name = "Sign",
@@ -630,7 +690,8 @@ local function dustShop(parent: Instance)
 		local crystal = part({
 			name = "DustCrystal",
 			size = Vector3.new(1.1, 2.2, 1.1),
-			cframe = CFrame.new(center.X - 7.5 + i * 3, H + 4.6, center.Z - 6) * CFrame.Angles(0, math.rad(45), math.rad(12)),
+			cframe = CFrame.new(center.X - 7.5 + i * 3, H + 4.6, center.Z - 6)
+				* CFrame.Angles(0, math.rad(45), math.rad(12)),
 			color = color,
 			material = Enum.Material.Neon,
 			parent = shop,
@@ -642,7 +703,8 @@ local function dustShop(parent: Instance)
 			part({
 				name = "ShelfCrystal",
 				size = Vector3.new(0.7, 1.4, 0.7),
-				cframe = CFrame.new(center.X - 12 + i * 4.6 + j * 1.2, H + 8 + j * 0.2, center.Z - 18.8) * CFrame.Angles(0, 0, math.rad(15)),
+				cframe = CFrame.new(center.X - 12 + i * 4.6 + j * 1.2, H + 8 + j * 0.2, center.Z - 18.8)
+					* CFrame.Angles(0, 0, math.rad(15)),
 				color = color,
 				material = Enum.Material.Neon,
 				parent = shop,
@@ -695,7 +757,13 @@ local function buildEmeraldForest(root: Instance)
 		local position = Vector3.new(random:NextNumber(-250, 250), 0, random:NextNumber(-620, -125))
 		if not nearTemple(position) and not nearLake(position) and not nearPath(position) then
 			local y = groundY(position.X, position.Z)
-			tree(forest, Vector3.new(position.X, y, position.Z), random:NextNumber(0.9, 1.6), LEAF_GREENS, Color3.fromRGB(88, 64, 46))
+			tree(
+				forest,
+				Vector3.new(position.X, y, position.Z),
+				random:NextNumber(0.9, 1.6),
+				LEAF_GREENS,
+				Color3.fromRGB(88, 64, 46)
+			)
 			placed += 1
 		end
 	end
@@ -712,7 +780,7 @@ local function buildEmeraldForest(root: Instance)
 	part({
 		name = "Floor",
 		size = Vector3.new(2, 46, 46),
-		cframe = column(center - Vector3.new(0, 0.6, 0), 2, 46),
+		cframe = column(center - Vector3.new(0, 0.6, 0), 2),
 		color = Color3.fromRGB(150, 148, 136),
 		material = Enum.Material.Slate,
 		shape = Enum.PartType.Cylinder,
@@ -724,7 +792,7 @@ local function buildEmeraldForest(root: Instance)
 		part({
 			name = "Pillar",
 			size = Vector3.new(height, 3, 3),
-			cframe = column(center + Vector3.new(math.cos(angle) * 20, 0, math.sin(angle) * 20), height, 3),
+			cframe = column(center + Vector3.new(math.cos(angle) * 20, 0, math.sin(angle) * 20), height),
 			color = Color3.fromRGB(170, 166, 152),
 			material = Enum.Material.Marble,
 			shape = Enum.PartType.Cylinder,
@@ -747,7 +815,7 @@ local function buildEmeraldForest(root: Instance)
 		part({
 			name = "RelicBase",
 			size = Vector3.new(0.4, 1.4, 1.4),
-			cframe = column(spot + Vector3.new(0, 3, 0), 0.4, 1.4),
+			cframe = column(spot + Vector3.new(0, 3, 0), 0.4),
 			color = color,
 			material = Enum.Material.Foil,
 			shape = Enum.PartType.Cylinder,
@@ -756,7 +824,7 @@ local function buildEmeraldForest(root: Instance)
 		part({
 			name = "RelicBody",
 			size = Vector3.new(1.4, 0.7, 0.7),
-			cframe = column(spot + Vector3.new(0, 3.4, 0), 1.4, 0.7),
+			cframe = column(spot + Vector3.new(0, 3.4, 0), 1.4),
 			color = color,
 			material = Enum.Material.Foil,
 			shape = Enum.PartType.Cylinder,
@@ -783,7 +851,13 @@ local function buildForeverFall(root: Instance)
 		local position = Vector3.new(random:NextNumber(-500, -215), 0, random:NextNumber(-290, 50))
 		local y = groundY(position.X, position.Z)
 		if y < 4 then
-			tree(fall, Vector3.new(position.X, y, position.Z), random:NextNumber(1, 1.7), LEAF_REDS, Color3.fromRGB(228, 222, 210))
+			tree(
+				fall,
+				Vector3.new(position.X, y, position.Z),
+				random:NextNumber(1, 1.7),
+				LEAF_REDS,
+				Color3.fromRGB(228, 222, 210)
+			)
 			placed += 1
 		end
 	end

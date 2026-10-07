@@ -160,6 +160,49 @@ function Harness.mount(path: string, name: string?): FakeInstance
 	return build(path, name or segments[#segments])
 end
 
+-- A fake container (e.g. a service) holding the given children.
+function Harness.container(name: string, children: { FakeInstance }): FakeInstance
+	local node = newFake(name, name, nil)
+	for _, child in children do
+		addChild(node, child)
+	end
+	return node
+end
+
+--[[
+	Installs a minimal `game` so server modules that only touch ReplicatedStorage and
+	Workspace:GetServerTimeNow() can run. `services` maps service names to stand-ins.
+]]
+function Harness.installGame(services: { [string]: any })
+	local game = {}
+	function game.GetService(_self, name: string)
+		local service = services[name]
+		assert(service ~= nil, `Harness: no fake service "{name}"`)
+		return service
+	end
+	Harness.globals.game = game
+	Harness.globals.workspace = services.Workspace
+end
+
+-- A model/humanoid/root triple good enough for Combatant logic.
+function Harness.fakeRig(): (any, any, any)
+	local attributes = {}
+	local model = {
+		Name = "FakeRig",
+		Parent = {},
+		attributes = attributes,
+	}
+	function model.SetAttribute(_self, name: string, value: any)
+		attributes[name] = value
+	end
+	function model.GetAttribute(_self, name: string)
+		return attributes[name]
+	end
+	local humanoid = { Health = 100, MaxHealth = 100 }
+	local root = { CFrame = roblox.CFrame.identity, Position = roblox.Vector3.zero }
+	return model, humanoid, root
+end
+
 local cache: { [FakeInstance]: any } = {}
 local loading: { [FakeInstance]: boolean } = {}
 
@@ -182,10 +225,7 @@ function Harness.require(module: FakeInstance): any
 	loading[module] = true
 
 	local source = fs.readFile(module._path :: string)
-	local env = {}
-	for key, value in datatypes do
-		env[key] = value
-	end
+	local env = table.clone(datatypes)
 	for key, value in Harness.globals do
 		env[key] = value
 	end

@@ -37,6 +37,8 @@ type Brain = {
 	nextWander: number,
 	strafe: number,
 	returning: boolean,
+	lastPosition: Vector3,
+	stuckSince: number,
 }
 
 local GrimmService = {}
@@ -53,7 +55,14 @@ local function flat(v: Vector3): Vector3
 end
 
 local function decorate(model: Model, def: Grimm.GrimmDef)
-	local function piece(parentName: string, size: Vector3, offset: CFrame, color: Color3, neon: boolean?, wedge: boolean?)
+	local function piece(
+		parentName: string,
+		size: Vector3,
+		offset: CFrame,
+		color: Color3,
+		neon: boolean?,
+		wedge: boolean?
+	)
 		local parent = model:FindFirstChild(parentName)
 		if not (parent and parent:IsA("BasePart")) then
 			return
@@ -80,15 +89,34 @@ local function decorate(model: Model, def: Grimm.GrimmDef)
 	local bone, eye = def.boneColor, def.eyeColor
 	-- Bone mask with glowing red eyes and markings.
 	piece("Head", Vector3.new(1.35, 0.95, 0.3), CFrame.new(0, 0.05, -0.55), bone)
-	piece("Head", Vector3.new(0.3, 0.1, 0.06), CFrame.new(-0.3, 0.12, -0.72) * CFrame.Angles(0, 0, math.rad(-12)), eye, true)
-	piece("Head", Vector3.new(0.3, 0.1, 0.06), CFrame.new(0.3, 0.12, -0.72) * CFrame.Angles(0, 0, math.rad(12)), eye, true)
+	piece(
+		"Head",
+		Vector3.new(0.3, 0.1, 0.06),
+		CFrame.new(-0.3, 0.12, -0.72) * CFrame.Angles(0, 0, math.rad(-12)),
+		eye,
+		true
+	)
+	piece(
+		"Head",
+		Vector3.new(0.3, 0.1, 0.06),
+		CFrame.new(0.3, 0.12, -0.72) * CFrame.Angles(0, 0, math.rad(12)),
+		eye,
+		true
+	)
 	piece("Head", Vector3.new(0.08, 0.5, 0.05), CFrame.new(-0.42, 0.25, -0.72), eye, true)
 	piece("Head", Vector3.new(0.08, 0.5, 0.05), CFrame.new(0.42, 0.25, -0.72), eye, true)
 	piece("Head", Vector3.new(0.7, 0.4, 0.7), CFrame.new(0, -0.25, -0.8), def.bodyColor)
 	piece("Head", Vector3.new(0.6, 0.12, 0.4), CFrame.new(0, -0.42, -0.95), bone)
 	-- Ears / horns.
 	for _, side in { -1, 1 } do
-		piece("Head", Vector3.new(0.18, 0.6, 0.4), CFrame.new(0.42 * side, 0.7, 0.05) * CFrame.Angles(math.rad(-15), 0, math.rad(-12 * side)), bone, false, true)
+		piece(
+			"Head",
+			Vector3.new(0.18, 0.6, 0.4),
+			CFrame.new(0.42 * side, 0.7, 0.05) * CFrame.Angles(math.rad(-15), 0, math.rad(-12 * side)),
+			bone,
+			false,
+			true
+		)
 	end
 	-- Spine spikes.
 	for index = 0, 3 do
@@ -105,7 +133,14 @@ local function decorate(model: Model, def: Grimm.GrimmDef)
 	for _, side in { "Right", "Left" } do
 		local sign = if side == "Right" then 1 else -1
 		piece(`{side} Arm`, Vector3.new(1.15, 0.5, 1.1), CFrame.new(0.05 * sign, 0.75, 0), bone)
-		piece(`{side} Arm`, Vector3.new(0.3, 0.7, 0.4), CFrame.new(0.45 * sign, 0.95, 0) * CFrame.Angles(0, 0, math.rad(-25 * sign)), bone, false, true)
+		piece(
+			`{side} Arm`,
+			Vector3.new(0.3, 0.7, 0.4),
+			CFrame.new(0.45 * sign, 0.95, 0) * CFrame.Angles(0, 0, math.rad(-25 * sign)),
+			bone,
+			false,
+			true
+		)
 		for claw = -1, 1 do
 			piece(
 				`{side} Arm`,
@@ -148,7 +183,9 @@ local function spawnOne(zone: World.SpawnZone)
 	local angle = random:NextNumber() * math.pi * 2
 	local distance = random:NextNumber() * zone.radius
 	local spot = groundAt(zone.center + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance))
-	model:PivotTo(CFrame.new(spot + Vector3.new(0, 3 * def.scale + 0.5, 0)) * CFrame.Angles(0, random:NextNumber() * 6.28, 0))
+	model:PivotTo(
+		CFrame.new(spot + Vector3.new(0, 3 * def.scale + 0.5, 0)) * CFrame.Angles(0, random:NextNumber() * 6.28, 0)
+	)
 
 	local humanoid = model:FindFirstChildOfClass("Humanoid") :: Humanoid
 	humanoid.MaxHealth = def.health
@@ -194,6 +231,8 @@ local function spawnOne(zone: World.SpawnZone)
 		nextWander = os.clock() + random:NextNumber(1, 4),
 		strafe = if random:NextNumber() < 0.5 then -1 else 1,
 		returning = false,
+		lastPosition = spot,
+		stuckSince = 0,
 	}
 end
 
@@ -202,7 +241,8 @@ local function validTarget(brain: Brain, target: Combatant?): boolean
 		return false
 	end
 	local distance = (target.root.Position - brain.combatant.root.Position).Magnitude
-	return distance <= brain.def.aggroRange * 1.6 and (target.root.Position - brain.home).Magnitude <= brain.def.leashRange
+	return distance <= brain.def.aggroRange * 1.6
+		and (target.root.Position - brain.home).Magnitude <= brain.def.leashRange
 end
 
 local function findTarget(brain: Brain): Combatant?
@@ -212,7 +252,10 @@ local function findTarget(brain: Brain): Combatant?
 	for _, other in CombatService.all() do
 		if other.kind ~= "Grimm" and other:isAlive() and CombatService.hostile(brain.combatant, other) then
 			local distance = (other.root.Position - root.Position).Magnitude
-			if distance <= brain.def.aggroRange and (other.root.Position - brain.home).Magnitude <= brain.def.leashRange then
+			if
+				distance <= brain.def.aggroRange
+				and (other.root.Position - brain.home).Magnitude <= brain.def.leashRange
+			then
 				-- Shadow clones are irresistible bait.
 				local score = if other.kind == "Clone" then distance * 0.3 else distance
 				if score < bestScore then
@@ -335,7 +378,11 @@ local function think(brain: Brain, now: number)
 			humanoid:Move(Vector3.zero)
 			local look = flat(offset)
 			CombatService.broadcast("Effect", { name = "GrimmTell", rig = c.model })
-			CombatService.performMove(c, move.move, { kind = "Grimm", look = if look.Magnitude > 0.01 then look.Unit else nil })
+			CombatService.performMove(
+				c,
+				move.move,
+				{ kind = "Grimm", look = if look.Magnitude > 0.01 then look.Unit else nil }
+			)
 			local duration = ClipLibrary.duration(move.move.clip)
 			brain.nextAttack = now + duration + random:NextNumber(def.attackCooldown[1], def.attackCooldown[2])
 			return
@@ -345,6 +392,18 @@ local function think(brain: Brain, now: number)
 	local closeRange = 6 * def.scale
 	if distance > closeRange then
 		humanoid:MoveTo(target.root.Position - flat(offset).Unit * (closeRange * 0.6))
+		-- Straight-line chasing can snag on trunks and rocks: hop when we stop making progress.
+		if (flat(root.Position - brain.lastPosition)).Magnitude < 0.6 then
+			if brain.stuckSince == 0 then
+				brain.stuckSince = now
+			elseif now - brain.stuckSince > 1.2 then
+				humanoid.Jump = true
+				brain.stuckSince = 0
+			end
+		else
+			brain.stuckSince = 0
+		end
+		brain.lastPosition = root.Position
 	else
 		-- Circle the prey while waiting for an opening.
 		local side = Vector3.new(-offset.Z, 0, offset.X)
