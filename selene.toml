@@ -1,0 +1,5 @@
+std = "roblox"
+
+[lints]
+# Clip data files are long tables of numbers; shadowing short helper names is intentional there.
+shadowing = "allow"

@@ -1,0 +1,21 @@
+# Built place files (produce them with `rojo build`)
+*.rbxl
+*.rbxlx
+*.rbxl.lock
+*.rbxlx.lock
+*.rbxm
+*.rbxmx
+
+# Tooling output
+sourcemap.json
+roblox.yml
+roblox.d.luau
+globalTypes.d.luau
+/build/
+/tools/preview/out/
+__pycache__/
+
+# Editors / OS
+.vscode/settings.json
+.DS_Store
+Thumbs.db
