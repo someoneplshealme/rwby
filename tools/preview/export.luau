@@ -7,12 +7,14 @@
 	Modes:
 	  clip  <ClipId>                 frames at every keyframe (and midpoints)
 	  pose  <ClipId>                 only the keyframes
+	  sheet <ClipId> <ClipId> ...    one row of keyframes per clip (a whole moveset on one image)
 	  loco  <speed>                  one gait cycle at a constant forward speed
-	  stance                         idle stance only
+	  stance                         idle and run poses of a stance
 	  shift <fromForm> <toForm>      mecha-shift between weapon forms
 	Options (key=value):
 	  stance=Scythe.Scythe  weapon=CrescentScythe  form=Scythe  style=Huntsman  frames=8
-	  title="..."  strafe=1 (move sideways in loco mode)
+	  title="..."  strafe=1 (move sideways in loco mode)  mid=1 (sheet: add midpoints)
+	  views=front,side,top (which camera angles render.py draws)
 ]]
 
 local fs = require("@lune/fs")

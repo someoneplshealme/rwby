@@ -2,18 +2,18 @@
 --[[
 	InputController: maps keyboard, mouse and gamepad input to game actions.
 
-	  Attack       LMB            R2      (shoot in ranged forms)
-	  Alt          RMB            L2      feint (melee) / aim (ranged)
-	  Critical     R              X
-	  Block        F (hold)       L1      tap at the right moment to parry
-	  Dodge        Q              B       air dash when airborne
-	  Shift        T              DPadUp  mecha-shift your weapon
-	  Semblance    E              R1
-	  Dust1-4      1 2 3 4        DPad Left/Down/Right, R3
-	  Execute      B              DPadDown (hold Y)
-	  Slide        C              ...
-	  Sprint       hold Shift or double-tap W, L3
-	  Menu         M              Select
+	  Attack       LMB                  R2        shoots in ranged forms
+	  Alt          RMB                  L2        feint (melee) / aim (ranged)
+	  Critical     R                    X
+	  Block        F (hold)             L1        raise it just before a hit to parry
+	  Dodge        Q                    B         air dash when airborne
+	  Shift        T                    DPadUp    mecha-shift your weapon
+	  Semblance    E                    R1
+	  Dust 1-4     1 2 3 4              DPad Left/Down/Right, R3
+	  Execute      B                    Y         finish a knocked enemy
+	  Slide        C (while sprinting)  Y         Y slides while sprinting, executes otherwise
+	  Sprint       hold Shift, or double-tap W   L3 (stays on until you stop moving)
+	  Menu         M                    Select
 ]]
 
 local UserInputService = game:GetService("UserInputService")
@@ -57,7 +57,8 @@ local BINDINGS: { [Enum.KeyCode | Enum.UserInputType]: string } = {
 	[Enum.KeyCode.DPadDown] = "Dust2",
 	[Enum.KeyCode.DPadRight] = "Dust3",
 	[Enum.KeyCode.ButtonR3] = "Dust4",
-	[Enum.KeyCode.ButtonL3] = "Sprint",
+	[Enum.KeyCode.ButtonL3] = "SprintTap",
+	[Enum.KeyCode.ButtonY] = "Interact",
 	[Enum.KeyCode.ButtonSelect] = "Menu",
 }
 

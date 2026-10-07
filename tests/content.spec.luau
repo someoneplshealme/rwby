@@ -9,6 +9,7 @@ local Harness = require("../tools/lune/harness")
 local shared = Harness.mount("src/shared")
 local Clip = Harness.require(shared.Animation.Clip)
 local ClipLibrary = Harness.require(shared.Animation.ClipLibrary)
+local Combat = Harness.require(shared.Config.Combat)
 local Dust = Harness.require(shared.Config.Dust)
 local Grimm = Harness.require(shared.Config.Grimm)
 local Semblances = Harness.require(shared.Config.Semblances)
@@ -68,7 +69,7 @@ return function(t)
 					"Knocked",
 					"Execute",
 					"Executed",
-				"Dead",
+					"Dead",
 					"DodgeForward",
 					"DodgeBack",
 					"DodgeLeft",
@@ -123,6 +124,10 @@ return function(t)
 						end
 						if #move.hits == 0 and move.shot == nil then
 							error(`{move.clip}: move does nothing`)
+						end
+						local firstHit = Clip.markerTime(clip, "Hit")
+						if move.feintable and (firstHit == nil or firstHit <= Combat.FeintWindowPadding + 0.05) then
+							error(`{move.clip}: feintable but lands too early to feint`)
 						end
 					end
 					local shoot = form.shoot

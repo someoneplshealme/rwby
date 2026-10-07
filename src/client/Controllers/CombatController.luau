@@ -499,6 +499,10 @@ local function slide()
 	MovementController.slide()
 end
 
+local function execute()
+	actionRemote:FireServer("Execute", {})
+end
+
 local function blockStart()
 	local model, humanoid = characterParts()
 	if model == nil or humanoid == nil or incapacitated(model, humanoid) then
@@ -550,8 +554,14 @@ local handlers: { [string]: () -> () } = {
 	end,
 	Slide = slide,
 	Block = blockStart,
-	Execute = function()
-		actionRemote:FireServer("Execute", {})
+	Execute = execute,
+	-- Gamepad face button shared by slide and execute: sprinting means you want to slide.
+	Interact = function()
+		if MovementController.isSprinting() and MovementController.isGrounded() then
+			slide()
+		else
+			execute()
+		end
 	end,
 }
 

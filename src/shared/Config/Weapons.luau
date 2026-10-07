@@ -120,7 +120,13 @@ local function move(def: MoveDef): MoveDef
 	return def
 end
 
+-- An M1 string. Like criticals, M1s can be feinted (right click) until just before they land.
 local function chain(moves: { MoveDef }): { MoveDef }
+	for _, def in moves do
+		if def.feintable == nil then
+			def.feintable = true
+		end
+	end
 	return moves
 end
 
@@ -246,21 +252,26 @@ Weapons.EmberGauntlets = {
 			m1 = chain({
 				move({
 					clip = "Gauntlets.M1_1",
+					-- Jabs land too fast to feint; the closing hook can be.
+					feintable = false,
 					hitbox = box(6, 6, 7, 3.5),
 					hits = { hit({ damage = 5, posture = 7, hitstun = 0.42 }) },
 				}),
 				move({
 					clip = "Gauntlets.M1_2",
+					feintable = false,
 					hitbox = box(6, 6, 7, 3.5),
 					hits = { hit({ damage = 5, posture = 7, hitstun = 0.42 }) },
 				}),
 				move({
 					clip = "Gauntlets.M1_3",
+					feintable = false,
 					hitbox = box(7, 6, 7, 3.5),
 					hits = { hit({ damage = 6, posture = 8, hitstun = 0.42 }) },
 				}),
 				move({
 					clip = "Gauntlets.M1_4",
+					feintable = false,
 					hitbox = box(6, 7, 7, 3.5),
 					hits = { hit({ damage = 6, posture = 9, hitstun = 0.45 }) },
 				}),
